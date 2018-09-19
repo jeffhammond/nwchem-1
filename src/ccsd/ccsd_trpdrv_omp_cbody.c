@@ -114,8 +114,9 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
 
         /* b,c loop over [0,nvir) to eliminate the need for offset corrections... */
         #pragma omp for collapse(2) schedule(static) reduction(+:emp5i,emp4i) reduction(+:emp5k,emp4k)
-        for (int b = 0; b < nvir; ++b) {{
-          for (int c = 0; c < nvir; ++c) {{
+#if 1
+        for (int b = 0; b < nvir; ++b) {
+          for (int c = 0; c < nvir; ++c) {
 
             const double denom = -1.0 / (eorb[ncor+nocc+b] + eorb[ncor+nocc+c] + eaijk);
 
@@ -164,8 +165,39 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
             emp5k += denom * t1v2b * dintx2c * (f1nbc+f2tbc+f4tcb -(f3nbc+f4tbc+f2tcb +f1tbc+f2nbc+f3tcb)*2
                                                 +(f3tbc+f4nbc+f1tcb)*4)
                    + denom * t1v2b * dintc2c * (f1tbc+f4tbc+f1ncb -(f2tbc+f3tbc+f2ncb)*2);
-        }}
-      }}
+        }
+      }
+#else
+      for (int b = 0; b < nvir; ++b) {
+          for (int c = 0; c < nvir; ++c) {
+              double denom = -1.0 / (eorb[ncor+nocc+b] + eorb[ncor+nocc+c] + eaijk);
+              emp4i += denom * (f1t[b+c*nvir]+f1n[c+b*nvir]+f2t[c+b*nvir]+f3n[b+c*nvir]+f4n[c+b*nvir])
+                             * (f1t[b+c*nvir]-f2t[b+c*nvir]*2-f3t[b+c*nvir]*2+f4t[b+c*nvir])
+                     - denom * (f1n[b+c*nvir]+f1t[c+b*nvir]+f2n[c+b*nvir]+f3n[c+b*nvir])
+                             * (f1t[b+c*nvir]*2-f2t[b+c*nvir]-f3t[b+c*nvir]+f4t[b+c*nvir]*2)
+                     + denom * 3 * (f1n[b+c*nvir]*(f1n[b+c*nvir]+f3n[c+b*nvir]+f4t[c+b*nvir]*2)
+                                    +f2n[b+c*nvir]*f2t[c+b*nvir]+f3n[b+c*nvir]*f4t[b+c*nvir]);
+              emp4k += denom * (f1n[b+c*nvir]+f1t[c+b*nvir]+f2n[c+b*nvir]+f3t[b+c*nvir]+f4t[c+b*nvir])
+                             * (f1n[b+c*nvir]-f2n[b+c*nvir]*2-f3n[b+c*nvir]*2+f4n[b+c*nvir])
+                     - denom * (f1t[b+c*nvir]+f1n[c+b*nvir]+f2t[c+b*nvir]+f3t[c+b*nvir])
+                             * (f1n[b+c*nvir]*2-f2n[b+c*nvir]-f3n[b+c*nvir]+f4n[b+c*nvir]*2)
+                     + denom * 3 * (f1t[b+c*nvir]*(f1t[b+c*nvir]+f3t[c+b*nvir]+f4n[c+b*nvir]*2)
+                                    +f2t[b+c*nvir]*f2n[c+b*nvir]+f3t[b+c*nvir]*f4n[b+c*nvir]);
+              emp5i += denom * t1v1[b] * dintx1[c] * (f1t[b+c*nvir]+f2n[b+c*nvir]+f4n[c+b*nvir]
+                                                      -(f3t[b+c*nvir]+f4n[b+c*nvir]+f2n[c+b*nvir]
+                                                        +f1n[b+c*nvir]+f2t[b+c*nvir]+f3n[c+b*nvir])*2
+                                                      +(f3n[b+c*nvir]+f4t[b+c*nvir]+f1n[c+b*nvir])*4)
+                     + denom * t1v1[b] * dintc1[c] * (f1n[b+c*nvir]+f4n[b+c*nvir]+f1t[c+b*nvir]
+                                                      -(f2n[b+c*nvir]+f3n[b+c*nvir]+f2t[c+b*nvir])*2);
+              emp5k += denom * t1v2[b] * dintx2[c] * (f1n[b+c*nvir]+f2t[b+c*nvir]+f4t[c+b*nvir]
+                                                      -(f3n[b+c*nvir]+f4t[b+c*nvir]+f2t[c+b*nvir]
+                                                        +f1t[b+c*nvir]+f2n[b+c*nvir]+f3t[c+b*nvir])*2
+                                                      +(f3t[b+c*nvir]+f4n[b+c*nvir]+f1t[c+b*nvir])*4)
+                     + denom * t1v2[b] * dintc2[c] * (f1t[b+c*nvir]+f4t[b+c*nvir]+f1n[c+b*nvir]
+                                                      -(f2t[b+c*nvir]+f3t[b+c*nvir]+f2n[c+b*nvir])*2);
+          }
+      }
+#endif
     }
 
     emp4 += emp4i;
