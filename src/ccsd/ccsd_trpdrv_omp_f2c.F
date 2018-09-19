@@ -40,7 +40,6 @@
       emp5i = 0.0d0
       emp4k = 0.0d0
       emp5k = 0.0d0
-
 !$omp parallel
 !$omp& shared(eorb)
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t)
