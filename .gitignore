@@ -104,4 +104,24 @@ $RECYCLE.BIN/
 # debris  created in nwchem compilations
 include_stamp
 dependencies
+src/include/*.fh
+bin/
+lib/
+external-armci/
+src/config/NWCHEM_CONFIG
+src/config/nwchem_config.h
+src/util/util_ga_version.F
+src/util/util_module_avail.F
+src/util/util_nwchem_version.F
+src/util/util_scalapack_info.F
+src/util/util_version.F
+src/tools/install/
+src/tools/*.CC.stamp
+src/tools/*.FC.stamp
+src/tools/ga-*.stamp
+src/tools/armci-mpi/
+src/tools/build/
+src/tools/ga-5.7.tar.gz
+src/tools/ga-5.7
+src/tools/ga-github
 # End of debris  created in nwchem compilations
