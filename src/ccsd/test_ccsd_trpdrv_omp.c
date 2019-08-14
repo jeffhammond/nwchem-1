@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef USE_VTUNE
+#include <ittnotify.h>
+#endif
+
 /* Do not allow the test to allocate more than MAX_MEM gigabytes. */
 #ifndef MAX_MEM
 #define MAX_MEM 4
@@ -16,6 +20,22 @@
 double omp_get_wtime() { return 0.0; }
 #endif
 
+#ifdef USE_FORTRAN
+void ccsd_trpdrv_omp_fbody_(double * restrict f1n, double * restrict f1t,
+                            double * restrict f2n, double * restrict f2t,
+                            double * restrict f3n, double * restrict f3t,
+                            double * restrict f4n, double * restrict f4t,
+                            double * restrict eorb,
+                            int    * restrict ncor_, int * restrict nocc_, int * restrict nvir_,
+                            double * restrict emp4_, double * restrict emp5_,
+                            int    * restrict a_, int * restrict i_, int * restrict j_, int * restrict k_, int * restrict klo_,
+                            double * restrict tij, double * restrict tkj, double * restrict tia, double * restrict tka,
+                            double * restrict xia, double * restrict xka, double * restrict jia, double * restrict jka,
+                            double * restrict kia, double * restrict kka, double * restrict jij, double * restrict jkj,
+                            double * restrict kij, double * restrict kkj,
+                            double * restrict dintc1, double * restrict dintx1, double * restrict t1v1,
+                            double * restrict dintc2, double * restrict dintx2, double * restrict t1v2);
+#else
 void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
                             double * restrict f2n, double * restrict f2t,
                             double * restrict f3n, double * restrict f3t,
@@ -30,6 +50,7 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
                             double * restrict kij, double * restrict kkj,
                             double * restrict dintc1, double * restrict dintx1, double * restrict t1v1,
                             double * restrict dintc2, double * restrict dintx2, double * restrict t1v2);
+#endif
 
 double * make_array(int n)
 {
@@ -132,6 +153,10 @@ int main(int argc, char* argv[])
 
     int iter = 0;
 
+#ifdef USE_VTUNE
+    __itt_resume();
+#endif
+
     for (int klo=1; klo<=nocc; klo+=kchunk) {
         const int khi = MIN(nocc, klo+kchunk-1);
         int a=1;
@@ -139,10 +164,17 @@ int main(int argc, char* argv[])
             for (int i=1; i<=nocc; i++) {
                 for (int k=klo; k<=MIN(khi,i); k++) {
                     double t0 = omp_get_wtime();
+#ifdef USE_FORTRAN
+                    ccsd_trpdrv_omp_fbody_(f1n, f1t, f2n, f2t, f3n, f3t, f4n, f4t, eorb,
+                                           &ncor, &nocc, &nvir, &emp4, &emp5, &a, &i, &j, &k, &klo,
+                                           Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka, Jij, Jkj, Kij, Kkj,
+                                           dintc1, dintx1, t1v1, dintc2, dintx2, t1v2);
+#else
                     ccsd_trpdrv_omp_cbody_(f1n, f1t, f2n, f2t, f3n, f3t, f4n, f4t, eorb,
                                            &ncor, &nocc, &nvir, &emp4, &emp5, &a, &i, &j, &k, &klo,
                                            Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka, Jij, Jkj, Kij, Kkj,
                                            dintc1, dintx1, t1v1, dintc2, dintx2, t1v2);
+#endif
                     double t1 = omp_get_wtime();
                     timers[iter] = (t1-t0);
 
@@ -164,6 +196,10 @@ int main(int argc, char* argv[])
 
 maxed_out:
     printf("");
+
+#ifdef USE_VTUNE
+    __itt_pause();
+#endif
 
     double tsum =  0.0;
     double tmax = -1.0e10;

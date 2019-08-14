@@ -125,6 +125,6 @@ endif
 
 include ../config/makelib.h
 
-test_cbody: test_cbody.c ccsd_trpdrv_omp_cbody.o
+test_ccsd_trpdrv_omp: test_ccsd_trpdrv_omp.c ccsd_trpdrv_omp_cbody.o
 	$(CC) $(COPTIONS) $^ $(BLASOPT) -o $@
 
