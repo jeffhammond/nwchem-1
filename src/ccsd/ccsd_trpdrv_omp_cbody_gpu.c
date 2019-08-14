@@ -38,8 +38,6 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
     double emp4k = 0.0;
     double emp5k = 0.0;
 
-#pragma omp parallel shared(eorb,f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t) \
-                     shared(t1v1,dintc1,dintx1,t1v2,dintc2,dintx2)
    {
         const int ncor = *ncor_;
         const int nocc = *nocc_;
@@ -52,57 +50,40 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
         const int k   = *k_ - 1;
         const int klo = *klo_ - 1;
 
-        /* Performance Note:
-           By definition, the following does not scale to more than 8 threads
-           unless nested parallelism (i.e. inside of DGEMM) is used.
-           It may be prudent to write a manually threaded wrapper for the
-           cases where single-threaded BLAS is used. */
-
         const cblas_int nv = nvir;
         const cblas_int no = nocc;
 
-        #pragma omp sections
         {
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, jia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f1n, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, tia, nv, &kkj[(k-klo)*lnov], no, 1.0, f1n, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, kia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f2n, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, xia, nv, &kkj[(k-klo)*lnov], no, 1.0, f2n, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, jia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f3n, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, tia, nv, &jkj[(k-klo)*lnov], no, 1.0, f3n, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, kia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f4n, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, xia, nv, &jkj[(k-klo)*lnov], no, 1.0, f4n, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, &jka[(k-klo)*lnvv], nv, tij, nv, 0.0, f1t, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &tka[(k-klo)*lnov], nv, kij, no, 1.0, f1t, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, &kka[(k-klo)*lnvv], nv, tij, nv, 0.0, f2t, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &xka[(k-klo)*lnov], nv, kij, no, 1.0, f2t, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, &jka[(k-klo)*lnvv], nv, tij, nv, 0.0, f3t, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &tka[(k-klo)*lnov], nv, jij, no, 1.0, f3t, nv);
-            }
-            #pragma omp section
-            {
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, &kka[(k-klo)*lnvv], nv, tij, nv, 0.0, f4t, nv);
-                cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &xka[(k-klo)*lnov], nv, jij, no, 1.0, f4t, nv);
-            }
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, jia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f1n, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, tia, nv, &kkj[(k-klo)*lnov], no, 1.0, f1n, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, kia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f2n, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, xia, nv, &kkj[(k-klo)*lnov], no, 1.0, f2n, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, jia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f3n, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, tia, nv, &jkj[(k-klo)*lnov], no, 1.0, f3n, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, kia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f4n, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, xia, nv, &jkj[(k-klo)*lnov], no, 1.0, f4n, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, &jka[(k-klo)*lnvv], nv, tij, nv, 0.0, f1t, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &tka[(k-klo)*lnov], nv, kij, no, 1.0, f1t, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, nv, nv, nv, 1.0, &kka[(k-klo)*lnvv], nv, tij, nv, 0.0, f2t, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &xka[(k-klo)*lnov], nv, kij, no, 1.0, f2t, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, &jka[(k-klo)*lnvv], nv, tij, nv, 0.0, f3t, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &tka[(k-klo)*lnov], nv, jij, no, 1.0, f3t, nv);
+        }
+        {
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, nv, 1.0, &kka[(k-klo)*lnvv], nv, tij, nv, 0.0, f4t, nv);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, nv, nv, no, -1.0, &xka[(k-klo)*lnov], nv, jij, no, 1.0, f4t, nv);
         }
 
         /* convert from Fortran to C offset convention... */
@@ -112,10 +93,45 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
 
         const double eaijk = eorb[a] - (eorb[ncor+i] + eorb[ncor+j] + eorb[ncor+k]);
 
-        /* b,c loop over [0,nvir) to eliminate the need for offset corrections... */
-        #pragma omp for collapse(2) schedule(static) reduction(+:emp5i,emp4i) reduction(+:emp5k,emp4k)
+#ifdef USE_OPENMP_TARGET
+
+        #pragma omp target map(to: f1n[0:nvir*nvir], f1t[0:nvir*nvir], \
+                                   f2n[0:nvir*nvir], f2t[0:nvir*nvir], \
+                                   f3n[0:nvir*nvir], f3t[0:nvir*nvir], \
+                                   f4n[0:nvir*nvir], f4t[0:nvir*nvir] ) \
+                           map(to: dintc1[0:nvir], dintc2[0:nvir], \
+                                   dintx1[0:nvir], dintx2[0:nvir], \
+                                   t1v1[0:nvir],   t1v2[0:nvir] ) \
+                           map(to: eorb[0:ncor+nocc+nvir] ) \
+                           map(to: ncor, nocc, nvir, eaijk) \
+                           map(tofrom: emp5i, emp4i, emp5k, emp4k)
+
+# ifdef TILESIZE
+
+        #pragma omp parallel for collapse(2) reduction(+:emp5i,emp4i) reduction(+:emp5k,emp4k)
+        for (int bt = 0; bt < nvir; bt+=TILESIZE) {
+          for (int ct = 0; ct < nvir; ct+=TILESIZE) {
+            for (int b = bt; b < MIN(bt+TILESIZE,nvir); ++b) {
+              for (int c = ct; c < MIN(ct+TILESIZE,nvir); ++c) {
+# else // !TILESIZE
+
+        #pragma omp parallel for collapse(2) reduction(+:emp5i,emp4i) reduction(+:emp5k,emp4k)
         for (int b = 0; b < nvir; ++b) {{
-          for (int c = 0; c < nvir; ++c) {{
+            for (int c = 0; c < nvir; ++c) {{
+
+# endif // TILESIZE
+
+#else // !USE_OPENMP_TARGET
+
+    // tiling should always be better for CPU.  32 is a good value for x86.
+# define TILESIZE 32
+        #pragma omp parallel for collapse(2) reduction(+:emp5i,emp4i) reduction(+:emp5k,emp4k)
+        for (int bt = 0; bt < nvir; bt+=TILESIZE) {
+          for (int ct = 0; ct < nvir; ct+=TILESIZE) {
+            for (int b = bt; b < MIN(bt+TILESIZE,nvir); ++b) {
+              for (int c = ct; c < MIN(ct+TILESIZE,nvir); ++c) {
+
+#endif // USE_OPENMP_TARGET
 
             const double denom = -1.0 / (eorb[ncor+nocc+b] + eorb[ncor+nocc+c] + eaijk);
 
@@ -164,9 +180,8 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
             emp5k += denom * t1v2b * dintx2c * (f1nbc+f2tbc+f4tcb -(f3nbc+f4tbc+f2tcb +f1tbc+f2nbc+f3tcb)*2
                                                 +(f3tbc+f4nbc+f1tcb)*4)
                    + denom * t1v2b * dintc2c * (f1tbc+f4tbc+f1ncb -(f2tbc+f3tbc+f2ncb)*2);
-        }}
       }}
-    }
+    }}
 
     emp4 += emp4i;
     emp5 += emp5i;
