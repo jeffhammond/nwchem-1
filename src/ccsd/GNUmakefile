@@ -27,9 +27,6 @@ include ../config/makefile.h
         ccsd_trpdrv_nb.o \
         ccsd_trpdrv_omp.o \
 	ccsd_trpdrv_omp_mixprec.o \
-        ccsd_trpdrv_omp_fn.o \
-        ccsd_trpdrv_omp_body.o \
-	ccsd_trpdrv_omp_cbody.o \
         moints_trp.o \
         ccsd.o \
         ccsd_aux.o \
@@ -78,8 +75,6 @@ endif
      ccsd_trpdrv_nb.F \
      ccsd_trpdrv_omp.F \
      ccsd_trpdrv_omp_mixprec.F \
-     ccsd_trpdrv_omp_fn.F \
-     ccsd_trpdrv_omp_body.F \
      moints_trp.F \
      ccsd_zvecs.F \
      ccsd_z2pm.F \
@@ -114,6 +109,10 @@ ifeq ($(HAVE_SET_GA_PROPERTY),Y)
       LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
 endif
 
+ifdef NWCHEM_OPENMP_TARGET_INTEL_GPU
+  OBJ_OPTIMIZE += ccsd_trpdrv_omp_fn.o ccsd_trpdrv_omp_body.o ccsd_trpdrv_omp_cbody.o
+  USES_BLAS += ccsd_trpdrv_omp_fn.F ccsd_trpdrv_omp_body.F
+endif
 
 ifeq ($(ARMCI_NETWORK),MPI-PR)
    LIB_DEFINES += -DACC_STRIPS
