@@ -14,9 +14,15 @@ c
       Character*(*) CC_Theory
       Integer RTDB, geom
       logical oconverged, occd, use_trpdrv_nb
-      logical use_trpdrv_omp, use_trpdrv_bgp2
-      logical use_trpdrv_omp_mp, use_trpdrv_omp_fn
+      logical use_trpdrv_omp
+      logical use_trpdrv_omp_mp
+      logical use_trpdrv_omp_fn
+#ifdef BGP
+      logical use_trpdrv_bgp2
+#endif
+#ifdef USE_MIC_TRPDRV
       logical use_trpdrv_offload
+#endif
 c
 #include "ccsd_len.fh"
 #include "tcgmsg.fh"
@@ -720,12 +726,16 @@ C
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_omp_fn', mt_log, 1,
      1                   use_trpdrv_omp_fn))
      2    use_trpdrv_omp_fn=.false.
+#ifdef USE_MIC_TRPDRV
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_offload', mt_log, 1,
      1                   use_trpdrv_offload))
      2    use_trpdrv_offload=.false.
+#endif
+#ifdef BGP
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_bgp2', mt_log, 1,
      1                   use_trpdrv_bgp2))
      2    use_trpdrv_bgp2=.false.
+#endif
 !
       mem_avail = ma_inquire_avail(MT_DBL)
       if(iam.eq.0.and.oprint)write(luout,*)'memory',mem_avail
