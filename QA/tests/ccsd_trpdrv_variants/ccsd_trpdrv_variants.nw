@@ -1,0 +1,67 @@
+echo
+
+start w3_rccsdpt_cc-pvdz_energy
+
+#memory stack 1000 mb heap 100 mb global 800 mb noverify
+#permanent_dir /tmp
+#scratch_dir /tmp
+
+geometry units angstrom noautoz noprint
+  H       1.218038       0.017442      -0.022009
+  O       1.295683      -0.951662      -0.092916
+  H       1.961236      -1.203127       0.552608
+  H       0.093268       2.241120      -0.596056
+  O       0.179908       1.594249       0.109280
+  H      -0.624503       1.046616       0.055883
+  H      -2.030801      -1.071624       0.569877
+  O      -1.476402      -0.636452      -0.082957
+  H      -0.610755      -1.079506      -0.027553
+end
+
+basis "ao basis" spherical noprint
+  * library cc-pvdz
+end
+
+scf
+  rhf
+  singlet
+  thresh 5e-13
+  maxiter 100
+  print low
+end
+
+ccsd
+  freeze atomic
+  thresh 1e-13
+  maxiter 100
+end
+
+set ccsd:use_trpdrv_nb     F
+set ccsd:use_trpdrv_omp    F
+set ccsd:use_trpdrv_omp_mp F
+set ccsd:use_trpdrv_omp_fn F
+task ccsd(t) energy
+
+set ccsd:use_trpdrv_nb     T
+set ccsd:use_trpdrv_omp    F
+set ccsd:use_trpdrv_omp_mp F
+set ccsd:use_trpdrv_omp_fn F
+task ccsd(t) energy
+
+set ccsd:use_trpdrv_nb     F
+set ccsd:use_trpdrv_omp    T
+set ccsd:use_trpdrv_omp_mp F
+set ccsd:use_trpdrv_omp_fn F
+task ccsd(t) energy
+
+set ccsd:use_trpdrv_nb     F
+set ccsd:use_trpdrv_omp    F
+set ccsd:use_trpdrv_omp_mp T
+set ccsd:use_trpdrv_omp_fn F
+task ccsd(t) energy
+
+set ccsd:use_trpdrv_nb     F
+set ccsd:use_trpdrv_omp    F
+set ccsd:use_trpdrv_omp_mp F
+set ccsd:use_trpdrv_omp_fn T
+task ccsd(t) energy
