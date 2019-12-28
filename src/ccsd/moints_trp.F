@@ -526,7 +526,7 @@ cstaggering to avoid congestion in ga-acc
              enddo
 #elif USE_NEW_LOOPS
            this code is not correct
-           if (abs(scale-1.0d0).lt.(1.e-13)) then
+           if (dabs(scale-1.0d0).lt.(1.e-13)) then
              do j=jlo,jhi
                do i=ilo,ihi
                  do v=1,nvir
@@ -583,7 +583,7 @@ cstaggering to avoid congestion in ga-acc
           enddo
 #elif USE_NEW_LOOPS
           this code is not correct
-          if (abs(scale-1.0d0).lt.(1.e-13)) then
+          if (dabs(scale-1.0d0).lt.(1.e-13)) then
             do i=ilo,ihi
               do j=jlo,jhi
                 do v=1,nvir
