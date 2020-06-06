@@ -1983,6 +1983,11 @@ endif
        ifneq ($(FC),ifx)
          FOPTIMIZE += -ip
        endif
+       ifeq ($(FC),ifx)
+         ifeq ($(USE_INTERNALBLAS),y)
+            $(error IFX generates incorrect results with internal BLAS. Please set BLAS_LIB=LAPACK_LIB="-mkl" instead.)
+         endif
+       endif
        FOPTIONS += -align -fpp
            CPP=fpp -P 
            ifeq ($(_IFCV15ORNEWER), Y)
