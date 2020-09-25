@@ -1785,7 +1785,7 @@ endif
        _CC=gcc
       endif
       ifeq ($(CC),icx)
-       _CC=gcc
+       _CC=icx
       endif
      ifeq ($(FC),$(findstring $(FC),xlf2008_r xlf_r xlf xlf90 xlf90_r))
        _FC=xlf
@@ -2015,7 +2015,8 @@ endif
         ifdef USE_OPENMP
           FOPTIONS += -fiopenmp
           ifdef USE_OFFLOAD
-            FOPTIONS += -fopenmp-targets=spirv64
+            FOPTIONS += -fopenmp-targets=spir64
+            FOPTIONS += -DNWCHEM_OPENMP_TARGET_INTEL_GPU=y
           endif
         endif
         ifdef IFX_DEBUG
@@ -2023,6 +2024,17 @@ endif
           FOPTIONS += -std95 -what
         endif
         FDEBUG = $(FOPTIMIZE)
+      endif
+      ifeq ($(_CC),icx)
+        ifdef USE_OPENMP
+          COPTIONS += -g -O2 -ffast-math
+          COPTIONS += -fiopenmp
+          ifdef USE_OFFLOAD
+            COPTIONS += -fopenmp-targets=spir64
+            COPTIONS += -DNWCHEM_OPENMP_TARGET_INTEL_GPU=y
+            COPTIONS += -mkl -DMKL
+          endif
+        endif
       endif
 
       # support for traditional Intel(R) Fortran compiler
@@ -2228,7 +2240,7 @@ endif
            endif
          endif
          COPTIMIZE =  -O3
-         COPTIMIZE += -ip -no-prec-div
+         #COPTIMIZE += -ip -no-prec-div
       endif
       ifeq ($(_CC),gcc)
         COPTIONS   +=   -O3 -funroll-loops -ffast-math 
