@@ -30,6 +30,8 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
                             double * restrict dintc1, double * restrict dintx1, double * restrict t1v1,
                             double * restrict dintc2, double * restrict dintx2, double * restrict t1v2)
 {
+    //printf("ccsd_trpdrv_omp_cbody\n");
+
     double emp4 = *emp4_;
     double emp5 = *emp5_;
 

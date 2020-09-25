@@ -13,7 +13,8 @@ c
       Double Precision RefEner, Convi, Tol2E
       Character*(*) CC_Theory
       Integer RTDB, geom
-      logical oconverged, occd, use_trpdrv_nb
+      logical oconverged, occd
+      logical use_trpdrv_nb
       logical use_trpdrv_omp
       logical use_trpdrv_omp_mp
       logical use_trpdrv_omp_fn

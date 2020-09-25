@@ -110,7 +110,9 @@ ifeq ($(HAVE_SET_GA_PROPERTY),Y)
 endif
 
 ifdef NWCHEM_OPENMP_TARGET_INTEL_GPU
-  OBJ_OPTIMIZE += ccsd_trpdrv_omp_fn.o ccsd_trpdrv_omp_body.o ccsd_trpdrv_omp_cbody.o
+  OBJ_OPTIMIZE += ccsd_trpdrv_omp_fn.o ccsd_trpdrv_omp_body.o
+  #OBJ_OPTIMIZE += ccsd_trpdrv_omp_cbody.o
+  OBJ_OPTIMIZE += ccsd_trpdrv_omp_cbody_gpu.o
   USES_BLAS += ccsd_trpdrv_omp_fn.F ccsd_trpdrv_omp_body.F
 endif
 
