@@ -2240,7 +2240,7 @@ endif
            endif
          endif
          COPTIMIZE =  -O3
-         #COPTIMIZE += -ip -no-prec-div
+         COPTIMIZE += -ip -no-prec-div
       endif
       ifeq ($(_CC),gcc)
         COPTIONS   +=   -O3 -funroll-loops -ffast-math 
